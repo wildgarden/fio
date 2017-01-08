@@ -1,0 +1,41 @@
+randrw: (g=0): rw=randrw, bs=4K-64K/4K-64K/4K-64K, ioengine=mmap, iodepth=1
+fio-2.15
+Starting 1 process
+randrw: Laying out IO file(s) (1 file(s) / 1024MB)
+
+randrw: (groupid=0, jobs=1): err= 0: pid=9011: Sun Jan  8 13:01:02 2017
+  read : io=2045.8MB, bw=41848KB/s, iops=1574, runt= 50057msec
+    clat (usec): min=0, max=50534, avg=302.74, stdev=625.58
+     lat (usec): min=0, max=50534, avg=302.82, stdev=625.59
+    clat percentiles (usec):
+     |  1.00th=[    1],  5.00th=[    3], 10.00th=[    5], 20.00th=[   89],
+     | 30.00th=[   94], 40.00th=[  245], 50.00th=[  326], 60.00th=[  386],
+     | 70.00th=[  394], 80.00th=[  410], 90.00th=[  588], 95.00th=[  596],
+     | 99.00th=[  692], 99.50th=[  780], 99.90th=[ 6304], 99.95th=[10432],
+     | 99.99th=[32128]
+  write: io=2050.3MB, bw=41942KB/s, iops=1580, runt= 50057msec
+    clat (usec): min=0, max=45051, avg=298.14, stdev=486.65
+     lat (usec): min=1, max=45052, avg=298.39, stdev=486.69
+    clat percentiles (usec):
+     |  1.00th=[    1],  5.00th=[    4], 10.00th=[   10], 20.00th=[   89],
+     | 30.00th=[   97], 40.00th=[  241], 50.00th=[  322], 60.00th=[  386],
+     | 70.00th=[  390], 80.00th=[  410], 90.00th=[  580], 95.00th=[  596],
+     | 99.00th=[  676], 99.50th=[  780], 99.90th=[ 5792], 99.95th=[ 9024],
+     | 99.99th=[23168]
+    lat (usec) : 2=1.98%, 4=3.94%, 10=4.81%, 20=1.09%, 50=1.86%
+    lat (usec) : 100=17.38%, 250=9.50%, 500=45.86%, 750=12.95%, 1000=0.33%
+    lat (msec) : 2=0.07%, 4=0.06%, 10=0.11%, 20=0.03%, 50=0.02%
+    lat (msec) : 100=0.01%
+  cpu          : usr=1.38%, sys=8.96%, ctx=909945, majf=908998, minf=72808
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=78813/w=79119/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: io=2045.8MB, aggrb=41848KB/s, minb=41848KB/s, maxb=41848KB/s, mint=50057msec, maxt=50057msec
+  WRITE: io=2050.3MB, aggrb=41942KB/s, minb=41942KB/s, maxb=41942KB/s, mint=50057msec, maxt=50057msec
+
+Disk stats (read/write):
+  sda: ios=905979/39005, merge=0/142, ticks=42945/471676, in_queue=514553, util=90.36%

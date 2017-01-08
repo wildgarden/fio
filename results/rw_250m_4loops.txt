@@ -1,0 +1,70 @@
+sync_randrw: (g=0): rw=randrw, bs=4K-64K/4K-64K/4K-64K, ioengine=sync, iodepth=1
+mmap_randrw: (g=0): rw=randrw, bs=4K-64K/4K-64K/4K-64K, ioengine=mmap, iodepth=1
+fio-2.15
+Starting 2 processes
+sync_randrw: Laying out IO file(s) (1 file(s) / 250MB)
+mmap_randrw: Laying out IO file(s) (1 file(s) / 250MB)
+
+sync_randrw: (groupid=0, jobs=1): err= 0: pid=9697: Sun Jan  8 13:47:54 2017
+  read : io=515644KB, bw=124702KB/s, iops=4668, runt=  4135msec
+    clat (usec): min=0, max=6558, avg=151.03, stdev=88.15
+     lat (usec): min=0, max=6558, avg=151.09, stdev=88.15
+    clat percentiles (usec):
+     |  1.00th=[   86],  5.00th=[   88], 10.00th=[   90], 20.00th=[   97],
+     | 30.00th=[  114], 40.00th=[  135], 50.00th=[  147], 60.00th=[  155],
+     | 70.00th=[  169], 80.00th=[  193], 90.00th=[  221], 95.00th=[  241],
+     | 99.00th=[  278], 99.50th=[  290], 99.90th=[  510], 99.95th=[ 1608],
+     | 99.99th=[ 5600]
+  write: io=508356KB, bw=122940KB/s, iops=4693, runt=  4135msec
+    clat (usec): min=1, max=127, avg= 8.46, stdev= 7.07
+     lat (usec): min=1, max=129, avg= 8.73, stdev= 7.26
+    clat percentiles (usec):
+     |  1.00th=[    1],  5.00th=[    1], 10.00th=[    2], 20.00th=[    2],
+     | 30.00th=[    4], 40.00th=[    7], 50.00th=[    8], 60.00th=[    8],
+     | 70.00th=[   10], 80.00th=[   13], 90.00th=[   16], 95.00th=[   20],
+     | 99.00th=[   30], 99.50th=[   38], 99.90th=[   79], 99.95th=[   89],
+     | 99.99th=[  117]
+    lat (usec) : 2=4.78%, 4=9.09%, 10=20.58%, 20=12.99%, 50=2.76%
+    lat (usec) : 100=10.67%, 250=37.35%, 500=1.73%, 750=0.02%, 1000=0.01%
+    lat (msec) : 2=0.02%, 4=0.01%, 10=0.01%
+  cpu          : usr=1.26%, sys=11.64%, ctx=27116, majf=0, minf=9
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=19305/w=19407/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+mmap_randrw: (groupid=0, jobs=1): err= 0: pid=9698: Sun Jan  8 13:47:54 2017
+  read : io=523936KB, bw=34017KB/s, iops=1277, runt= 15402msec
+    clat (usec): min=0, max=32686, avg=372.71, stdev=606.18
+     lat (usec): min=0, max=32686, avg=372.80, stdev=606.18
+    clat percentiles (usec):
+     |  1.00th=[   26],  5.00th=[   86], 10.00th=[   89], 20.00th=[   92],
+     | 30.00th=[  179], 40.00th=[  286], 50.00th=[  358], 60.00th=[  390],
+     | 70.00th=[  398], 80.00th=[  470], 90.00th=[  604], 95.00th=[  804],
+     | 99.00th=[ 1608], 99.50th=[ 1784], 99.90th=[ 9280], 99.95th=[15040],
+     | 99.99th=[25216]
+  write: io=500064KB, bw=32467KB/s, iops=1206, runt= 15402msec
+    clat (usec): min=5, max=46946, avg=391.50, stdev=927.80
+     lat (usec): min=6, max=46947, avg=391.78, stdev=927.85
+    clat percentiles (usec):
+     |  1.00th=[   26],  5.00th=[   87], 10.00th=[   89], 20.00th=[   93],
+     | 30.00th=[  183], 40.00th=[  290], 50.00th=[  366], 60.00th=[  390],
+     | 70.00th=[  398], 80.00th=[  502], 90.00th=[  604], 95.00th=[  828],
+     | 99.00th=[ 1592], 99.50th=[ 1768], 99.90th=[14656], 99.95th=[19072],
+     | 99.99th=[46336]
+    lat (usec) : 2=0.01%, 10=0.01%, 20=0.01%, 50=3.20%, 100=19.17%
+    lat (usec) : 250=12.92%, 500=45.20%, 750=13.23%, 1000=3.27%
+    lat (msec) : 2=2.75%, 4=0.06%, 10=0.06%, 20=0.08%, 50=0.03%
+  cpu          : usr=1.01%, sys=7.88%, ctx=248395, majf=248132, minf=1882
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=19675/w=18585/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: io=1015.3MB, aggrb=67496KB/s, minb=34017KB/s, maxb=124702KB/s, mint=4135msec, maxt=15402msec
+  WRITE: io=984.81MB, aggrb=65473KB/s, minb=32467KB/s, maxb=122939KB/s, mint=4135msec, maxt=15402msec
+
+Disk stats (read/write):
+  sda: ios=264007/16128, merge=0/16, ticks=16025/241677, in_queue=257686, util=91.27%
