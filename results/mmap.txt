@@ -1,0 +1,40 @@
+randrw: (g=0): rw=randrw, bs=4K-64K/4K-64K/4K-64K, ioengine=mmap, iodepth=1
+fio-2.15
+Starting 1 process
+randrw: Laying out IO file(s) (1 file(s) / 1024MB)
+
+randrw: (groupid=0, jobs=1): err= 0: pid=8772: Sun Jan  8 12:43:28 2017
+  read : io=375184KB, bw=37515KB/s, iops=1302, runt= 10001msec
+    clat (usec): min=25, max=22443, avg=378.17, stdev=576.98
+     lat (usec): min=25, max=22443, avg=378.27, stdev=577.00
+    clat percentiles (usec):
+     |  1.00th=[   35],  5.00th=[   88], 10.00th=[   89], 20.00th=[  100],
+     | 30.00th=[  266], 40.00th=[  350], 50.00th=[  386], 60.00th=[  394],
+     | 70.00th=[  406], 80.00th=[  478], 90.00th=[  596], 95.00th=[  612],
+     | 99.00th=[  780], 99.50th=[ 2192], 99.90th=[ 9536], 99.95th=[11712],
+     | 99.99th=[21120]
+  write: io=377076KB, bw=37704KB/s, iops=1305, runt= 10001msec
+    clat (usec): min=24, max=37322, avg=386.23, stdev=760.02
+     lat (usec): min=24, max=37336, avg=386.51, stdev=760.11
+    clat percentiles (usec):
+     |  1.00th=[   51],  5.00th=[   88], 10.00th=[   89], 20.00th=[  100],
+     | 30.00th=[  266], 40.00th=[  346], 50.00th=[  386], 60.00th=[  394],
+     | 70.00th=[  406], 80.00th=[  482], 90.00th=[  588], 95.00th=[  612],
+     | 99.00th=[  780], 99.50th=[ 2832], 99.90th=[11328], 99.95th=[15552],
+     | 99.99th=[24960]
+    lat (usec) : 50=1.01%, 100=18.92%, 250=8.68%, 500=52.33%, 750=17.84%
+    lat (usec) : 1000=0.61%
+    lat (msec) : 2=0.08%, 4=0.11%, 10=0.30%, 20=0.10%, 50=0.02%
+  cpu          : usr=1.31%, sys=10.08%, ctx=183383, majf=183362, minf=1336
+  IO depths    : 1=100.0%, 2=0.0%, 4=0.0%, 8=0.0%, 16=0.0%, 32=0.0%, >=64=0.0%
+     submit    : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     complete  : 0=0.0%, 4=100.0%, 8=0.0%, 16=0.0%, 32=0.0%, 64=0.0%, >=64=0.0%
+     issued    : total=r=13027/w=13059/d=0, short=r=0/w=0/d=0, drop=r=0/w=0/d=0
+     latency   : target=0, window=0, percentile=100.00%, depth=1
+
+Run status group 0 (all jobs):
+   READ: io=375184KB, aggrb=37514KB/s, minb=37514KB/s, maxb=37514KB/s, mint=10001msec, maxt=10001msec
+  WRITE: io=377076KB, aggrb=37703KB/s, minb=37703KB/s, maxb=37703KB/s, mint=10001msec, maxt=10001msec
+
+Disk stats (read/write):
+  sda: ios=180275/4, merge=0/4, ticks=8914/11, in_queue=8913, util=89.61%
