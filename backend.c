@@ -76,9 +76,6 @@ int shm_id = 0;
 int temp_stall_ts;
 unsigned long done_secs = 0;
 
-#define PAGE_ALIGN(buf)	\
-	(char *) (((uintptr_t) (buf) + page_mask) & ~page_mask)
-
 #define JOB_START_TIMEOUT	(5 * 1000)
 
 static void sig_int(int sig)
@@ -1198,7 +1195,7 @@ static int init_io_u(struct thread_data *td)
 
 	if (td->o.odirect || td->o.mem_align || td->o.oatomic ||
 	    td_ioengine_flagged(td, FIO_RAWIO))
-		p = PAGE_ALIGN(td->orig_buffer) + td->o.mem_align;
+		p = PTR_ALIGN(td->orig_buffer, page_mask) + td->o.mem_align;
 	else
 		p = td->orig_buffer;
 
@@ -1264,6 +1261,10 @@ static int init_io_u(struct thread_data *td)
 	return 0;
 }
 
+/*
+ * This function is Linux specific.
+ * FIO_HAVE_IOSCHED_SWITCH enabled currently means it's Linux.
+ */
 static int switch_ioscheduler(struct thread_data *td)
 {
 #ifdef FIO_HAVE_IOSCHED_SWITCH
@@ -1274,7 +1275,8 @@ static int switch_ioscheduler(struct thread_data *td)
 	if (td_ioengine_flagged(td, FIO_DISKLESSIO))
 		return 0;
 
-	sprintf(tmp, "%s/queue/scheduler", td->sysfs_root);
+	assert(td->files && td->files[0]);
+	sprintf(tmp, "%s/queue/scheduler", td->files[0]->du->sysfs_root);
 
 	f = fopen(tmp, "r+");
 	if (!f) {
@@ -1362,7 +1364,7 @@ static bool keep_running(struct thread_data *td)
 		uint64_t diff;
 
 		/*
-		 * If the difference is less than the minimum IO size, we
+		 * If the difference is less than the maximum IO size, we
 		 * are done.
 		 */
 		diff = limit - ddir_rw_sum(td->io_bytes);
@@ -2055,7 +2057,7 @@ static bool check_mount_writes(struct thread_data *td)
 		return false;
 
 	for_each_file(td, f, i) {
-		if (f->filetype != FIO_TYPE_BD)
+		if (f->filetype != FIO_TYPE_BLOCK)
 			continue;
 		if (device_is_mounted(f->file_name))
 			goto mounted;

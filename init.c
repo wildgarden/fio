@@ -356,6 +356,9 @@ static int setup_thread_area(void)
 		perror("shmat");
 		return 1;
 	}
+#ifdef FIO_HAVE_SHM_ATTACH_REMOVED
+	shmctl(shm_id, IPC_RMID, NULL);
+#endif
 #endif
 
 	memset(threads, 0, max_jobs * sizeof(struct thread_data));
@@ -1020,7 +1023,7 @@ int ioengine_load(struct thread_data *td)
 		 */
 		if (origeo) {
 			memcpy(td->eo, origeo, td->io_ops->option_struct_size);
-			options_mem_dupe(td->eo, td->io_ops->options);
+			options_mem_dupe(td->io_ops->options, td->eo);
 		} else {
 			memset(td->eo, 0, td->io_ops->option_struct_size);
 			fill_default_options(td->eo, td->io_ops->options);
@@ -2717,9 +2720,6 @@ int parse_cmd_line(int argc, char *argv[], int client_type)
 	}
 
 out_free:
-	if (pid_file)
-		free(pid_file);
-
 	return ini_idx;
 }
 
@@ -2788,7 +2788,7 @@ int parse_options(int argc, char *argv[])
 		if (did_arg)
 			return 0;
 
-		log_err("No jobs(s) defined\n\n");
+		log_err("No job(s) defined\n\n");
 
 		if (!did_arg) {
 			usage(argv[0]);
