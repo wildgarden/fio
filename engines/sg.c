@@ -20,7 +20,7 @@
 #define MAX_SB 64               // sense block maximum return size
 
 struct sgio_cmd {
-	unsigned char cdb[16];  	// increase to support 16 byte commands
+	unsigned char cdb[16];      // enhanced from 10 to support 16 byte commands
 	unsigned char sb[MAX_SB];   // add sense block to commands
 	int nr;
 };
@@ -32,7 +32,6 @@ struct sgio_data {
 	int *fd_flags;
 	void *sgbuf;
 	unsigned int bs;
-	long long max_lba;
 	int type_checked;
 };
 
@@ -253,7 +252,7 @@ static int fio_sgio_doio(struct thread_data *td, struct io_u *io_u, int do_sync)
 	struct fio_file *f = io_u->file;
 	int ret;
 
-	if (f->filetype == FIO_TYPE_BD) {
+	if (f->filetype == FIO_TYPE_BLOCK) {
 		ret = fio_sgio_ioctl_doio(td, f, io_u);
 		td->error = io_u->error;
 	} else {
@@ -309,7 +308,6 @@ static int fio_sgio_prep(struct thread_data *td, struct io_u *io_u)
 	 * blocks on medium.
 	 */
 	if (hdr->dxfer_direction != SG_DXFER_NONE) {
-
 		if (lba < MAX_10B_LBA) {
 			hdr->cmdp[2] = (unsigned char) ((lba >> 24) & 0xff);
 			hdr->cmdp[3] = (unsigned char) ((lba >> 16) & 0xff);
@@ -416,12 +414,11 @@ static int fio_sgio_read_capacity(struct thread_data *td, unsigned int *bs,
 	}
 
 	*bs	 = (buf[4] << 24) | (buf[5] << 16) | (buf[6] << 8) | buf[7];
-	*max_lba = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) & 0x00000000FFFFFFFFULL;  // for some reason max_lba is being sign extended even though unsigned.
-
+	*max_lba = ((buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3]) & MAX_10B_LBA;  // for some reason max_lba is being sign extended even though unsigned.
 
 	/*
-	 * If max lba is 0xFFFFFFFF, then need to retry with
-	 * 16 byteread capacity
+	 * If max lba masked by MAX_10B_LBA equals MAX_10B_LBA,
+	 * then need to retry with 16 byte Read Capacity command.
 	 */
 	if (*max_lba == MAX_10B_LBA) {
 		hdr.cmd_len = 16;
@@ -507,8 +504,7 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
 	unsigned int bs = 0;
 	unsigned long long max_lba = 0;
 
-
-	if (f->filetype == FIO_TYPE_BD) {
+	if (f->filetype == FIO_TYPE_BLOCK) {
 		if (ioctl(f->fd, BLKSSZGET, &bs) < 0) {
 			td_verror(td, errno, "ioctl");
 			return 1;
@@ -529,19 +525,19 @@ static int fio_sgio_type_check(struct thread_data *td, struct fio_file *f)
 		}
 	} else {
 		td_verror(td, EINVAL, "wrong file type");
-		log_err("ioengine sg only works on block devices\n");
+		log_err("ioengine sg only works on block or character devices\n");
 		return 1;
 	}
 
 	sd->bs = bs;
 	// Determine size of commands needed based on max_lba
-	sd->max_lba = max_lba;
-	if (max_lba > MAX_10B_LBA) {
-		dprint(FD_IO, "sgio_type_check: using 16 byte operations: max_lba = 0x%016llx\n", max_lba);
+	if (max_lba >= MAX_10B_LBA) {
+		dprint(FD_IO, "sgio_type_check: using 16 byte read/write "
+			"commands for lba above 0x%016llx/0x%016llx\n",
+			MAX_10B_LBA, max_lba);
 	}
 
-
-	if (f->filetype == FIO_TYPE_BD) {
+	if (f->filetype == FIO_TYPE_BLOCK) {
 		td->io_ops->getevents = NULL;
 		td->io_ops->event = NULL;
 	}
@@ -629,6 +625,24 @@ static char *fio_sgio_errdetails(struct io_u *io_u)
 				break;
 			case 0x0d:
 				strlcat(msg, "SG_ERR_DID_REQUEUE", MAXERRDETAIL);
+				break;
+			case 0x0e:
+				strlcat(msg, "SG_ERR_DID_TRANSPORT_DISRUPTED", MAXERRDETAIL);
+				break;
+			case 0x0f:
+				strlcat(msg, "SG_ERR_DID_TRANSPORT_FAILFAST", MAXERRDETAIL);
+				break;
+			case 0x10:
+				strlcat(msg, "SG_ERR_DID_TARGET_FAILURE", MAXERRDETAIL);
+				break;
+			case 0x11:
+				strlcat(msg, "SG_ERR_DID_NEXUS_FAILURE", MAXERRDETAIL);
+				break;
+			case 0x12:
+				strlcat(msg, "SG_ERR_DID_ALLOC_FAILURE", MAXERRDETAIL);
+				break;
+			case 0x13:
+				strlcat(msg, "SG_ERR_DID_MEDIUM_ERROR", MAXERRDETAIL);
 				break;
 			default:
 				strlcat(msg, "Unknown", MAXERRDETAIL);
@@ -775,6 +789,12 @@ static int fio_sgio_get_file_size(struct thread_data *td, struct fio_file *f)
 	if (fio_file_size_known(f))
 		return 0;
 
+	if (f->filetype != FIO_TYPE_BLOCK && f->filetype != FIO_TYPE_CHAR) {
+		td_verror(td, EINVAL, "wrong file type");
+		log_err("ioengine sg only works on block or character devices\n");
+		return 1;
+	}
+
 	ret = fio_sgio_read_capacity(td, &bs, &max_lba);
 	if (ret ) {
 		td_verror(td, td->error, "fio_sgio_read_capacity");
@@ -800,7 +820,7 @@ static struct ioengine_ops ioengine = {
 	.cleanup	= fio_sgio_cleanup,
 	.open_file	= fio_sgio_open,
 	.close_file	= generic_close_file,
-	.get_file_size	= fio_sgio_get_file_size, // generic_get_file_size
+	.get_file_size	= fio_sgio_get_file_size,
 	.flags		= FIO_SYNCIO | FIO_RAWIO,
 };
 

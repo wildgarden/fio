@@ -2235,7 +2235,7 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
 			  },
 			  { .ival = "gauss",
 			    .oval = FIO_FSERVICE_GAUSS,
-			    .help = "Normal (gaussian) distribution",
+			    .help = "Normal (Gaussian) distribution",
 			  },
 			  { .ival = "roundrobin",
 			    .oval = FIO_FSERVICE_RR,
@@ -2644,10 +2644,6 @@ struct fio_option fio_options[FIO_MAX_OPTS] = {
 			    .help = "Use crc32 checksums for verification",
 			  },
 			  { .ival = "crc32c-intel",
-			    .oval = VERIFY_CRC32C,
-			    .help = "Use crc32c checksums for verification (hw assisted, if available)",
-			  },
-			  { .ival = "crc32c-arm64",
 			    .oval = VERIFY_CRC32C,
 			    .help = "Use crc32c checksums for verification (hw assisted, if available)",
 			  },
@@ -4776,34 +4772,19 @@ int fio_show_option_help(const char *opt)
 	return show_cmd_help(fio_options, opt);
 }
 
-void options_mem_dupe(void *data, struct fio_option *options)
-{
-	struct fio_option *o;
-	char **ptr;
-
-	for (o = &options[0]; o->name; o++) {
-		if (o->type != FIO_OPT_STR_STORE)
-			continue;
-
-		ptr = td_var(data, o, o->off1);
-		if (*ptr)
-			*ptr = strdup(*ptr);
-	}
-}
-
 /*
  * dupe FIO_OPT_STR_STORE options
  */
 void fio_options_mem_dupe(struct thread_data *td)
 {
-	options_mem_dupe(&td->o, fio_options);
+	options_mem_dupe(fio_options, &td->o);
 
 	if (td->eo && td->io_ops) {
 		void *oldeo = td->eo;
 
 		td->eo = malloc(td->io_ops->option_struct_size);
 		memcpy(td->eo, oldeo, td->io_ops->option_struct_size);
-		options_mem_dupe(td->eo, td->io_ops->options);
+		options_mem_dupe(td->io_ops->options, td->eo);
 	}
 }
 
