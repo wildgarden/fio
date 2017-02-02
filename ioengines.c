@@ -449,7 +449,7 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
 		goto err;
 
 	if (td->o.fadvise_hint != F_ADV_NONE &&
-	    (f->filetype == FIO_TYPE_BD || f->filetype == FIO_TYPE_FILE)) {
+	    (f->filetype == FIO_TYPE_BLOCK || f->filetype == FIO_TYPE_FILE)) {
 		int flags;
 
 		if (td->o.fadvise_hint == F_ADV_TYPE) {
@@ -474,7 +474,7 @@ int td_io_open_file(struct thread_data *td, struct fio_file *f)
 	}
 #ifdef FIO_HAVE_STREAMID
 	if (td->o.fadvise_stream &&
-	    (f->filetype == FIO_TYPE_BD || f->filetype == FIO_TYPE_FILE)) {
+	    (f->filetype == FIO_TYPE_BLOCK || f->filetype == FIO_TYPE_FILE)) {
 		off_t stream = td->o.fadvise_stream;
 
 		if (posix_fadvise(f->fd, stream, f->io_size, POSIX_FADV_STREAMID) < 0) {
@@ -618,15 +618,15 @@ int fio_show_ioengine_help(const char *engine)
 {
 	struct flist_head *entry;
 	struct thread_data td;
+	struct ioengine_ops *io_ops;
 	char *sep;
 	int ret = 1;
 
 	if (!engine || !*engine) {
 		log_info("Available IO engines:\n");
 		flist_for_each(entry, &engine_list) {
-			td.io_ops = flist_entry(entry, struct ioengine_ops,
-						list);
-			log_info("\t%s\n", td.io_ops->name);
+			io_ops = flist_entry(entry, struct ioengine_ops, list);
+			log_info("\t%s\n", io_ops->name);
 		}
 		return 0;
 	}
@@ -638,16 +638,16 @@ int fio_show_ioengine_help(const char *engine)
 
 	memset(&td, 0, sizeof(td));
 
-	td.io_ops = load_ioengine(&td, engine);
-	if (!td.io_ops) {
+	io_ops = load_ioengine(&td, engine);
+	if (!io_ops) {
 		log_info("IO engine %s not found\n", engine);
 		return 1;
 	}
 
-	if (td.io_ops->options)
-		ret = show_cmd_help(td.io_ops->options, sep);
+	if (io_ops->options)
+		ret = show_cmd_help(io_ops->options, sep);
 	else
-		log_info("IO engine %s has no options\n", td.io_ops->name);
+		log_info("IO engine %s has no options\n", io_ops->name);
 
 	free_ioengine(&td);
 
