@@ -7,11 +7,11 @@ runtime=30
 group_reporting
 
 #### custom ####
-disable_lat=1
-disable_slat=1
-isable_clat=1
+#disable_lat=1
+#disable_slat=1
+#disable_clat=1
 
-#disable_bw=1
+disable_bw=1
 gtod_cpu=1
 #directory=results/pmem/pmemblk
 
@@ -20,9 +20,9 @@ per_job_logs=0
 
 #logging
 write_lat_log
-#write_iops_log
+write_iops_log
 #write_bw_log
-#clat_percentiles=0
+clat_percentiles=0
 cpus_allowed_policy=split
 
 # For the pmemblk engine:
